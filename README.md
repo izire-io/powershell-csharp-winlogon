@@ -16,4 +16,4 @@ Being considered as a remote user, some information may be missing (ex : SerialN
 Long story : PowerShell adds c# code to its assembly. This code accesses the WIN32 API and exposes specific functions to get a token with user's given credentials. This token is used in PowerShell with a .NET function to impersonate the user.We have the relation below :
 
    PowerShell <--> dynamically added C# assembly <--> Win32 API functions
-              <--> .NET functions
+   PowerShell <--> .NET functions
