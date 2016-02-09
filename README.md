@@ -10,10 +10,6 @@ When you remotely access a host with Windows Remote Management (with or without 
 
 This solution helped me to solve WMI generic failure errors and to retrieve missing (blank) properties.
 
-Long story :
-
-PowerShell adds c# code to its assembly. This code accesses the WIN32 API and exposes specific functions to get a token with a user's given credentials. This token is used in PowerShell with a .NET function to impersonate the user.
-
-We have the relation below :
+Long story : PowerShell adds c# code to its assembly. This code accesses the WIN32 API and exposes specific functions to get a token with a user's given credentials. This token is used in PowerShell with a .NET function to impersonate the user.We have the relation below :
 
    PowerShell <--> dynamically added C# assembly <--> Win32 API functions
