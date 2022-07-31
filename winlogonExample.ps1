@@ -6,6 +6,8 @@ Import-Module "$(Split-Path -parent $MyInvocation.MyCommand.Path)\winlogonModule
 
 if(WinLogin)
 {
+    WinLogin("YOU_DOMAIN\YouUsername", "YourPassword")
+
     gwmi Win32_DiskDrive | select SerialNumber
         
     WinLogout

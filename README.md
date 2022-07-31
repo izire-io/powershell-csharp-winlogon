@@ -1,19 +1,32 @@
-# powershell-csharp-winlogon
-A way to impersonate a user with PowerShell.
-Impersonating users with powershell can solve problems when used remotely.
+# Presentation
 
-Long story short :
-It uses a WIN32 API to retrieve an impersonation token and then impersonates it with a .NET function.
+This small powershell module provides a way to impersonate a user on Windows by calling a powershell method with its credentials.
 
-Known solved problem :
+# Why was it created to begin with ?
 
-In the case you can retrieve all your information locally but get errors (ex. "WMI generic failure") or blank values when commands are used remotely. (Context : When you remotely access a host with Windows Remote Management, with or without WinRM PowerShell plugin but finally using PowerShell commands on the remote Host, you may use WMI to query disk information and other ressources.)
+Originally, this was made to solve an issue:
 
-Explanation:
+When remotely connected to a Windows machine using [WinRM (Windows Remote Management)](WinRM), [WMI (Windows Management Infrastructure)](https://docs.microsoft.com/en-us/windows/win32/wmisdk/wmi-start-page) commands would fail to retrieve information and we would receive a `WMI Generic Failure` error message or blank values/result (ex: serial number of a disk drive etc.).
 
-Being considered as a remote user, some information may be missing (ex : SerialNumber etc.). Doing an impersonation of yourself once connected to the host allows you to be considered as a local user altough you are remotely connected. This way, you may retrieve your information.
+Connected locally with the same user, the commands work fine, so the discriminant factor would be the session (local vs remote) that queried the information.
 
-Long story : PowerShell adds c# code to its assembly. This code accesses the WIN32 API and exposes specific functions to get a token with user's given credentials. This token is used in PowerShell with a .NET function to impersonate the user.We have the relation below :
+## Solution
 
-   PowerShell <--> dynamically added C# assembly <--> Win32 API functions
-   PowerShell <--> .NET functions
+We remotely connect via WinRM then we impersonate ourself upon Windows (with same credentials used for WinRM).
+We end up in a sub-session to the remote one. In this one, WMI commands do not fail anymore.
+
+# Files
+
+- `winlogonExample.ps1`: provides an example of how to use / call the script.
+  - It imports the powershell module, call its `WinLogin` method, retrieve some device information via `wmi` then logout the sub-session via `WinLogout`
+- `winlogonModule.psm1` is the powershell module that exposes two methods: `WinLogin` and `WinLogout`
+  - This module uses powershell's `AddType -TypeDefinition` command to inject C# code into the current PowerShell session. The injected code is then used within exposed methods.
+- `winlogonSignature.cs` is the C# code that is responsible for exposing `LogonUser` Win32 API method to the Powershell via .NET objects.
+ 
+# NOTES
+
+Information in this README may be incomplete as code written 6-7 years before README redaction. Please check code and logic prior using.
+
+To solve WMI errors, WinLogin must be called when already connected remotely via WinRM.
+
+May not be used in multiple threads as we use global variables.
